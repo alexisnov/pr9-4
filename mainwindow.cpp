@@ -22,6 +22,9 @@ MainWindow::MainWindow(QWidget *parent)
     //Инициализация вектора
     city_case = new QVector<int>;
     country_case = new QVector<int>;
+    cityName = "Moscow";
+    countryName = "Russia";
+    com->getCountries();
 }
 
 MainWindow::~MainWindow()
@@ -33,23 +36,29 @@ void MainWindow::on_pb_request_clicked()
 {
     //com->getCountries();
     com->getSummary();
-    com->getCountryInfo("Russia",ui->dateEdit->text());
-    com->getCityInfo("Moscow",ui->dateEdit->text());
+    com->getCountryInfo(countryName,ui->dateEdit->text());
+    com->getCityInfo(cityName,ui->dateEdit->text());
 }
 
 
 //Слот получения списка стран
 void MainWindow::resp_countries(QByteArray resp)
 {
+    //Очистка списка
+    ui->comboBox->clear();
     // То создаём объект Json Document, считав в него все данные из ответа
       QJsonDocument document = QJsonDocument::fromJson(resp);
 
       // Забираем из документа корневой объект
       QJsonObject root = document.object();
-      /* Находим объект "departament", который располагается самым первым в корневом объекте.
-       * С помощью метода keys() получаем список всех объектов и по первому индексу
-       * забираем название объекта, по которому получим его значение
-       * */
+      if(root.keys().size()>0 && root["data"]!=NULL){
+        QJsonArray countries = root["data"].toArray();
+        foreach(QJsonValue country, countries){
+            QJsonObject c = country.toObject();
+            ui->comboBox->addItem(c["name"].toString());
+        }
+
+      }
       ui->textEdit->clear();
       //ui->textEdit->append(root.keys().at(0) + ": " + root.value(root.keys().at(0)).toString());
       ui->textEdit->setText(document.toJson(QJsonDocument::Indented));
@@ -96,7 +105,7 @@ void MainWindow::resp_country(QByteArray resp)
          for (int i=0;i<global.size();i++) {
              QJsonObject country = global[i].toObject();
              ui->textEdit->setText(country.value("confirmed").toString());
-             country_issues+=country.value("confirmed_diff").toInt();
+             country_issues+=country.value("confirmed").toInt();
          }
          if(plot){//Добавление данных для графика
                 country_case->append(country_issues);
@@ -140,8 +149,8 @@ void MainWindow::t_tick(){
     if(dayID<daysN){//Проверка граничных условий
         if(!request){
             QDate date = date_start.addDays(dayID);
-            com->getCityInfo("Moscow",date.toString("yyyy-MM-dd"));
-            com->getCountryInfo("Russia",date.toString("yyyy-MM-dd"));
+            com->getCityInfo(cityName,date.toString("yyyy-MM-dd"));
+            com->getCountryInfo(countryName,date.toString("yyyy-MM-dd"));
             request = true;
             dayID++;
             int p = (int) dayID*100.0/daysN;
@@ -162,8 +171,8 @@ void MainWindow::t_tick(){
             QPoint point = QPoint(i,country_case->value(i));
             series_2->append(point);
         }
-        series->setName("Москва");
-        series_2->setName("Россия");
+        series->setName(cityName);
+        series_2->setName(countryName);
         chart->addSeries(series);
         chart->addSeries(series_2);
         //chart->legend()->hide();
@@ -192,4 +201,10 @@ void MainWindow::on_pushButton_plot_clicked()
     //Сброс строки прогресса
     ui->progressBar->setValue(0);
     ui->progressBar->setEnabled(true);
+}
+
+void MainWindow::on_comboBox_currentIndexChanged(const QString &arg1)
+{
+    //Сохранение идентификатора страны
+    countryName = arg1;
 }
