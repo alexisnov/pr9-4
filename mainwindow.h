@@ -13,6 +13,7 @@
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QLegend>
 #include <QTimer>
+#include <QFile>
 
 
 QT_BEGIN_NAMESPACE
@@ -64,5 +65,15 @@ private:
     QChart *chart;
     QLineSeries *series;//Ряд данных
     QChartView *chartView;//Виджет
+    //Файлы
+    QFile *countriesFile;
+    /**
+      * @brief Загрузка списка стран
+      */
+    void loadCountries();
+    /**
+      * @brief Отображение списка стран
+      */
+    void displayCountries(QByteArray);
 };
 #endif // MAINWINDOW_H

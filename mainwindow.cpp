@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     country_case = new QVector<int>;
     cityName = "Moscow";
     countryName = "Russia";
-    com->getCountries();
+    loadCountries();
 }
 
 MainWindow::~MainWindow()
@@ -44,24 +44,14 @@ void MainWindow::on_pb_request_clicked()
 //Слот получения списка стран
 void MainWindow::resp_countries(QByteArray resp)
 {
-    //Очистка списка
-    ui->comboBox->clear();
-    // То создаём объект Json Document, считав в него все данные из ответа
-      QJsonDocument document = QJsonDocument::fromJson(resp);
-
-      // Забираем из документа корневой объект
-      QJsonObject root = document.object();
-      if(root.keys().size()>0 && root["data"]!=NULL){
-        QJsonArray countries = root["data"].toArray();
-        foreach(QJsonValue country, countries){
-            QJsonObject c = country.toObject();
-            ui->comboBox->addItem(c["name"].toString());
-        }
-
-      }
-      ui->textEdit->clear();
-      //ui->textEdit->append(root.keys().at(0) + ": " + root.value(root.keys().at(0)).toString());
-      ui->textEdit->setText(document.toJson(QJsonDocument::Indented));
+    displayCountries(resp);
+    //Запись в файл
+    if(!countriesFile->open(QIODevice::WriteOnly))
+    {
+        qDebug() << "Ошибка открытия для чтения";
+    }
+     countriesFile->write(resp);
+    countriesFile->close();
 }
 
 //Слот получения сводки
@@ -116,6 +106,7 @@ void MainWindow::resp_country(QByteArray resp)
      }else{
          ui->textEdit->setText("Ошибка получения данных");
      }
+
 }
 
 //Слот получения данных по городу
@@ -207,4 +198,39 @@ void MainWindow::on_comboBox_currentIndexChanged(const QString &arg1)
 {
     //Сохранение идентификатора страны
     countryName = arg1;
+}
+
+void MainWindow::loadCountries(){
+    //Проверка на существование файла
+    countriesFile = new QFile("regions.json");
+    if(countriesFile->exists()){//Чтение информации из файла
+        if(!countriesFile->open(QIODevice::ReadOnly))
+        {
+            qDebug() << "Ошибка открытия для чтения";
+        }
+        displayCountries(countriesFile->readAll());
+    }else{//Запрос от сервера
+        com->getCountries();
+    }
+}
+
+void MainWindow::displayCountries(QByteArray text){
+    //Очистка списка
+    ui->comboBox->clear();
+    // То создаём объект Json Document, считав в него все данные из ответа
+      QJsonDocument document = QJsonDocument::fromJson(text);
+
+      // Забираем из документа корневой объект
+      QJsonObject root = document.object();
+      if(root.keys().size()>0 && root["data"]!=NULL){
+        QJsonArray countries = root["data"].toArray();
+        foreach(QJsonValue country, countries){
+            QJsonObject c = country.toObject();
+            ui->comboBox->addItem(c["name"].toString());
+        }
+
+      }
+      ui->textEdit->clear();
+      //ui->textEdit->append(root.keys().at(0) + ": " + root.value(root.keys().at(0)).toString());
+      ui->textEdit->setText(document.toJson(QJsonDocument::Indented));
 }
