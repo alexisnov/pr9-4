@@ -98,8 +98,10 @@ void MainWindow::resp_country(QByteArray resp)
              country_issues+=country.value("confirmed").toInt();
          }
          if(plot){//Добавление данных для графика
-                country_case->append(country_issues);
-                request = false;
+                //country_case->append(country_issues);
+                //request = false;
+                QPoint point = QPoint(dayID,country_issues);
+                seriesList[reqID]->append(point);
          }
          ui->lcdNumber_rus->display(country_issues);
 
@@ -130,6 +132,7 @@ void MainWindow::resp_city_info(QByteArray resp)
          if(plot){//Добавление данных для графика
                 city_case->append(city_issues);
                 request = false;
+
          }
      }else{
          ui->textEdit->setText("Ошибка получения данных");
@@ -137,35 +140,29 @@ void MainWindow::resp_city_info(QByteArray resp)
 }
 
 void MainWindow::t_tick(){
-    if(dayID<daysN){//Проверка граничных условий
-        if(!request){
-            QDate date = date_start.addDays(dayID);
-            com->getCityInfo(cityName,date.toString("yyyy-MM-dd"));
-            com->getCountryInfo(countryName,date.toString("yyyy-MM-dd"));
-            request = true;
-            dayID++;
-            int p = (int) dayID*100.0/daysN;
-            //Обновить значение строки прогресса
-            ui->progressBar->setValue(p);
+    if(reqID<reqList.size()-1){//Проверка граничных условий
+        if(dayID<daysN){
+            if(!request){
+                QDate date = date_start.addDays(dayID);
+                com->getCityInfo(cityName,date.toString("yyyy-MM-dd"));
+                com->getCountryInfo(reqList[reqID],date.toString("yyyy-MM-dd"));
+                request = true;
+                dayID++;
+                int p = (int) dayID*100.0/daysN;
+                //Обновить значение строки прогресса
+                ui->progressBar->setValue(p);
+            }
+        }else{
+            dayID=0;
+            reqID++;
         }
     }else{
         //Построение графика
         chart = new QChart();
         chart->setTitle("Динамика заболеваемости");
-        series = new QLineSeries(chart);
-        for (int i=0 ; i<city_case->size();i++) {
-            QPoint point = QPoint(i,city_case->value(i));
-            series->append(point);
+        foreach(QLineSeries *series,seriesList){
+            chart->addSeries(series);
         }
-        QLineSeries *series_2 = new QLineSeries(chart);
-        for (int i=0 ; i<country_case->size();i++) {
-            QPoint point = QPoint(i,country_case->value(i));
-            series_2->append(point);
-        }
-        series->setName(cityName);
-        series_2->setName(countryName);
-        chart->addSeries(series);
-        chart->addSeries(series_2);
         //chart->legend()->hide();
         chart->createDefaultAxes();
         chartView->setChart(chart);
@@ -192,6 +189,13 @@ void MainWindow::on_pushButton_plot_clicked()
     //Сброс строки прогресса
     ui->progressBar->setValue(0);
     ui->progressBar->setEnabled(true);
+    reqID=0;
+    //Инициализация списка рядов данных
+    seriesList.clear();
+    for(int i=0;i<reqList.size();i++){
+        QLineSeries *series = new QLineSeries(chart);
+        series->setName(reqList[i]);
+    }
 }
 
 void MainWindow::on_comboBox_currentIndexChanged(const QString &arg1)
@@ -217,6 +221,7 @@ void MainWindow::loadCountries(){
 void MainWindow::displayCountries(QByteArray text){
     //Очистка списка
     ui->comboBox->clear();
+    ui->treeWidget->clear();
     // То создаём объект Json Document, считав в него все данные из ответа
       QJsonDocument document = QJsonDocument::fromJson(text);
 
@@ -226,10 +231,34 @@ void MainWindow::displayCountries(QByteArray text){
         QJsonArray countries = root["data"].toArray();
         foreach(QJsonValue country, countries){
             QJsonObject c = country.toObject();
+            //Наполнение списка на вкладке 1
             ui->comboBox->addItem(c["name"].toString());
+            //Наполенение дерева регионов на вкладке 2
+            QStringList strList = QStringList();
+            strList.append(c["name"].toString());
+            QTreeWidgetItem *item = new QTreeWidgetItem(strList);
+            ui->treeWidget->addTopLevelItem(item);
+            ui->treeWidget->sortItems(0,Qt::SortOrder::AscendingOrder);
         }
 
       }
       ui->textEdit->clear();
       ui->textEdit->setText(document.toJson(QJsonDocument::Indented));
+}
+
+void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
+{
+
+}
+
+void MainWindow::on_treeWidget_itemSelectionChanged()
+{
+    //Формирование очереди запросов
+    QList<QTreeWidgetItem *> items = ui->treeWidget->selectedItems();
+    qDebug() << "-----";
+    reqList.clear();
+    foreach(QTreeWidgetItem *item,items){
+        qDebug() << item->text(0);
+        reqList.append(item->text(0));
+    }
 }

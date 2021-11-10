@@ -198,101 +198,127 @@
        <attribute name="title">
         <string>График</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,1">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
-          <property name="spacing">
-           <number>2</number>
-          </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="1,2">
           <item>
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Начало</string>
+           <widget class="QTreeWidget" name="treeWidget">
+            <property name="selectionMode">
+             <enum>QAbstractItemView::MultiSelection</enum>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QDateEdit" name="dateEdit_start">
-            <property name="maximumDate">
-             <date>
-              <year>2020</year>
-              <month>12</month>
-              <day>31</day>
-             </date>
-            </property>
-            <property name="minimumDate">
-             <date>
-              <year>2020</year>
-              <month>6</month>
-              <day>1</day>
-             </date>
-            </property>
-            <property name="displayFormat">
-             <string>yyyy-MM-dd</string>
-            </property>
-            <property name="calendarPopup">
+            <property name="animated">
              <bool>true</bool>
             </property>
+            <attribute name="headerVisible">
+             <bool>false</bool>
+            </attribute>
+            <column>
+             <property name="text">
+              <string notr="true">1</string>
+             </property>
+            </column>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Конец</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QDateEdit" name="dateEdit_end">
-            <property name="maximumDate">
-             <date>
-              <year>2020</year>
-              <month>12</month>
-              <day>31</day>
-             </date>
-            </property>
-            <property name="minimumDate">
-             <date>
-              <year>2020</year>
-              <month>6</month>
-              <day>1</day>
-             </date>
-            </property>
-            <property name="displayFormat">
-             <string>yyyy-MM-dd</string>
-            </property>
-            <property name="calendarPopup">
-             <bool>true</bool>
-            </property>
-           </widget>
+           <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,0,1">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <property name="spacing">
+               <number>2</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="label_6">
+                <property name="text">
+                 <string>Начало</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDateEdit" name="dateEdit_start">
+                <property name="maximumDate">
+                 <date>
+                  <year>2020</year>
+                  <month>12</month>
+                  <day>31</day>
+                 </date>
+                </property>
+                <property name="minimumDate">
+                 <date>
+                  <year>2020</year>
+                  <month>6</month>
+                  <day>1</day>
+                 </date>
+                </property>
+                <property name="displayFormat">
+                 <string>yyyy-MM-dd</string>
+                </property>
+                <property name="calendarPopup">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>Конец</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDateEdit" name="dateEdit_end">
+                <property name="maximumDate">
+                 <date>
+                  <year>2020</year>
+                  <month>12</month>
+                  <day>31</day>
+                 </date>
+                </property>
+                <property name="minimumDate">
+                 <date>
+                  <year>2020</year>
+                  <month>6</month>
+                  <day>1</day>
+                 </date>
+                </property>
+                <property name="displayFormat">
+                 <string>yyyy-MM-dd</string>
+                </property>
+                <property name="calendarPopup">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_plot">
+              <property name="text">
+               <string>Построить график</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QProgressBar" name="progressBar">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="value">
+               <number>0</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="plotLayout"/>
+            </item>
+           </layout>
           </item>
          </layout>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_plot">
-          <property name="text">
-           <string>Построить график</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QProgressBar" name="progressBar">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="value">
-           <number>0</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QVBoxLayout" name="plotLayout"/>
         </item>
        </layout>
       </widget>

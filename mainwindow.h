@@ -14,7 +14,7 @@
 #include <QtCharts/QLegend>
 #include <QTimer>
 #include <QFile>
-
+#include <QTreeWidgetItem>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -32,6 +32,7 @@ class MainWindow : public QMainWindow
     QVector<int> *country_case;
     bool plot;//Флаг построения
     bool request;//Флаг на текущий запрос
+
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -52,6 +53,10 @@ private slots:
 
     void on_comboBox_currentIndexChanged(const QString &arg1);
 
+    void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
+
+    void on_treeWidget_itemSelectionChanged();
+
 private:
     Ui::MainWindow *ui;
     QTimer *timer;
@@ -59,11 +64,14 @@ private:
     QDate date_end;//Дата конца построений
     int daysN;//Кол-во дней для построений
     int dayID;//ID дня
+    int reqID;//ID запроса
     QString countryName;//Идентификатор страны
     QString cityName;//Идентификатор города
+    QStringList reqList;//Список запросов
     //График
     QChart *chart;
     QLineSeries *series;//Ряд данных
+    QVector<QLineSeries *> seriesList;//Ряды данных
     QChartView *chartView;//Виджет
     //Файлы
     QFile *countriesFile;
