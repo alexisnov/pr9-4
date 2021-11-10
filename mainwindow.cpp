@@ -231,6 +231,5 @@ void MainWindow::displayCountries(QByteArray text){
 
       }
       ui->textEdit->clear();
-      //ui->textEdit->append(root.keys().at(0) + ": " + root.value(root.keys().at(0)).toString());
       ui->textEdit->setText(document.toJson(QJsonDocument::Indented));
 }
